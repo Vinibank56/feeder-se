@@ -1,0 +1,10 @@
+{
+  "power_flow": "polar Newton-Raphson. Load buses inject S = S0 (z V^2 + i V + p) with z+i+p=1 per class, same fractions on P and Q. Slack voltage and angle locked. Open switchable branch omitted from Ybus (series y and half charging). PQ mismatch residual max |dP,dQ| < nr_residual.",
+  "pmu": "One hourly sample per file. vang_rad is on the slack frame; two channels have a constant angle bias. p_inj_mw is load convention (negative = consumption) including ZIP.",
+  "motor": "Te = 3 Vth^2 (r2/s) / ((r1+r2/s)^2+(x1+x2)^2). I = Vth / hypot(r1+r2/s, x1+x2). Slip starts at case.motor.s0. Each step: s <- clip(s + dt_s/h_s*(Tm - Te), s_clip[0], s_clip[1]); then store I(s). Vth is algebraic |V| at train_bus for motor_train (hour train_hour_for_vth) and at hold_bus for motor_hold_mech, from the same ZIP power flow, constant over 4 s.",
+  "zip_classes": [
+    "res",
+    "com",
+    "ind"
+  ]
+}

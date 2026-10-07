@@ -1,0 +1,45 @@
+schema_version = "1.4"
+
+artifacts = ["/app/feeder_se.json"]
+
+[task]
+name = "afterquery/feeder-zip-se"
+description = "Recover which 8 of 20 feeder ties are open and two biased PMU channels from ZIP load-flow snapshots, then report withheld unmetered voltages and a second motor-start current."
+authors = [{ name = "Stanley Egbue", email = "stanleychibuike915@gmail.com" }]
+keywords = ["distribution-feeder", "zip-load", "state-estimation", "switch-status", "induction-motor"]
+
+[metadata]
+author_name = "Stanley Egbue"
+author_email = "stanleychibuike915@gmail.com"
+author_organization = "Independent Researcher"
+author_profile = "Electrical engineering researcher and software developer with experience in AI data annotation, LLM evaluation, software-engineering benchmark review, technical reasoning, Python development, testing, and AI systems evaluation."
+conflicts_of_interest = "None"
+domain = "engineering-sciences"
+field = "electrical-engineering"
+subfield = "distribution load flow, ZIP demand, and switch-status estimation"
+category = "Science"
+subcategory = "Electrical & Computer Engineering"
+tags = ["distribution-feeder", "zip-load", "state-estimation", "switch-status", "induction-motor"]
+expert_time_estimate_hours = 18.0
+relevant_experience = "Electrical engineering work on per-unit load flow, ZIP load models, and feeder switch-status estimation from PMU/SCADA snapshots, plus numerical Python for Newton power-flow and induction-machine slip transients."
+difficulty_explanation = "A commissioning engineer has to name which 8 of 20 switchable ties are open. The open-count is published; the identities are not. ZIP class fractions, two constant PMU angle biases, unmetered |V| on a withheld hour, and a second motor-start current are recovered from the same Ybus. Expected expert time is about 18 hours. Telemetry is seeded synthetic ZIP/Newton with PMU noise. The 20 switchable series impedances sit in one band (r_pu 0.028 to 0.047); sorting on r_pu does not recover the open set. Fitting ZIP on the as-built eight-id one-line soaks switch error into the load model. Angle bias is identified after that Ybus is fixed."
+solution_explanation = "The reference solution fits ZIP from PMU P versus |V|, searches 8-subsets with a multi-start greedy fill plus 1-exchange polish on hours 8 and 14, takes the two largest median angle residuals as biased channels, solves withheld polar Newton–Raphson, then grids motor H and r2 on motor_train.csv using s0 from case.json and integrates the withheld stator current. Other search orders are allowed; the verifier does not import this code."
+verification_explanation = "Open-count is published as n_open_switches=8; the exact set {SW-B,D,F,G,I,O,S,T} is graded. Uniqueness is all Hamming-1 and Hamming-2 8-sets. On hours 8 and 14 the true set PMU |V| MSE is 1.26e-7; the nearest other 8-set is the 1-swap D→L at 3.10e-7 (2.46×). Over all 24 hours that same 1-swap is 2.35e-7 versus 1.20e-7 (1.96×); the true set is lower on 22 of 24 hours. The eight lowest-r_pu switchable ids are not the true set. Sealed generator is polar NR; independent withheld |V| is Gauss–Seidel vs the artifact (GS–NR split 9.9e-7 pu). Oracle withheld |V| RMSE 2.5e-5 (peak 2.8e-5), angle RMSE 2.8e-5. As-built eight-set is 0.0523/0.0528 |V| and 0.0643 rad; constant-power ZIP is 0.0110/0.0112 and 0.0120 rad. Gates |V| RMSE 0.003, peak 0.004, angle 0.003 sit below those nulls and above the GS–NR split. Bias {7,8} within 0.003 rad (oracle 4.6e-5; noise 4e-4). Motor oracle on-grid; I RMSE 0.022 between oracle 2.6e-4 and I-before-Euler ~0.034. Heun vs Euler GT is 0.018 pu; Heun gate 0.025. Binary reward. Seed 20261005."
+
+[verifier]
+timeout_sec = 900.0
+environment_mode = "separate"
+
+[verifier.environment]
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 9000.0
+
+[environment]
+build_timeout_sec = 600.0
+cpus = 1
+memory_mb = 2048
+storage_mb = 10240
+gpus = 0
+network_mode = "public"
